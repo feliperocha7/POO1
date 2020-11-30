@@ -57,6 +57,67 @@ public class Disciplina {
         if(methodException != null);
         return list;
     }
+    
+    public static void insert(String nome, String ementa, int ciclo, double nota) throws Exception{
+        Connection con = null;
+        PreparedStatement stmt = null;
+        Exception methodException = null;
+        try{
+            con = DbListener.getConnection();
+            stmt = con.prepareStatement("INSERT INTO disciplinas VALUES(?,?,?,?)");
+            stmt.setString(1, nome);
+            stmt.setString(2, ementa);
+            stmt.setInt(3, ciclo);
+            stmt.setDouble(4, nota);
+            stmt.execute();
+        }catch(Exception ex){
+            methodException = ex;
+        }finally{
+            try{stmt.close();}catch(Exception ex2){};
+            try{con.close();}catch(Exception ex2){};
+        }
+        if(methodException!=null)throw methodException;
+    }
+    public static void update(long rowId, String nome, String ementa, int ciclo, double nota) throws Exception{
+        Connection con = null;
+        PreparedStatement stmt = null;
+        Exception methodException = null;
+        try{
+            con = DbListener.getConnection();
+            stmt = con.prepareStatement("UPDATE disciplinas SET nome=?, ementa=?, ciclo=?, nota=?"
+                    + "WHERE rowId=?");
+            stmt.setString(1, nome);
+            stmt.setString(2, ementa);
+            stmt.setInt(3, ciclo);
+            stmt.setDouble(4, nota);
+            stmt.setLong(5, rowId);
+            stmt.execute();
+        }catch(Exception ex){
+            methodException = ex;
+        }finally{
+            try{stmt.close();}catch(Exception ex2){};
+            try{con.close();}catch(Exception ex2){};
+        }
+        if(methodException!=null)throw methodException;
+    }
+    public static void delete(long rowId) throws Exception{
+        Connection con = null;
+        PreparedStatement stmt = null;
+        Exception methodException = null;
+        try{
+            con = DbListener.getConnection();
+            stmt = con.prepareStatement("DELETE FROM disciplinas WHERE rowId=?");
+            stmt.setLong(1, rowId);
+            stmt.execute();
+        }catch(Exception ex){
+            methodException = ex;
+        }finally{
+            try{stmt.close();}catch(Exception ex2){};
+            try{con.close();}catch(Exception ex2){};
+        }
+        if(methodException!=null)throw methodException;
+    }
+    
 
     public long getRowId() {
         return rowId;
