@@ -5,76 +5,67 @@
  */
 package prova_poo;
 
+import java.sql.*;
 import java.util.ArrayList;
+import web.DbListener;
 
 /**
  *
  * @author felip
  */
 public class Disciplina {
+    long rowId;
     String nome, ementa;
     int ciclo;
     double nota;
     
-    private static ArrayList<Disciplina> disciplinas;
     
-    private Disciplina(String nome, String ementa, int ciclo){
+    private Disciplina(long rowId, String nome, String ementa, int ciclo, double nota){
+        this.rowId = rowId;
         this.nome = nome;
         this.ementa = ementa;
         this.ciclo = ciclo;
+        this.nota = nota;
     }
     
     public static ArrayList<Disciplina> getList(){
-        if(disciplinas == null){
-            disciplinas = new ArrayList<>();
-            disciplinas.add(new Disciplina("Engenharia de Software II","Contexto atual "
-                    + "das empresas em relação aos projetos de tecnologia de informação. "
-                    + "Modelagem de Negócio para o desenvolvimento de software. Conceitos, "
-                    + "evolução e importância da Engenharia de Requisitos. Entendendo e "
-                    + "analisando os problemas e as necessidades dos usuários, clientes e "
-                    + "envolvidos no projeto. Técnicas de elicitação. Requisitos, seus tipos"
-                    + " e matriz de rastreabilidade. Definição do sistema a partir dos "
-                    + "requisitos. Gerenciamento de requisitos.",3));
-            disciplinas.add(new Disciplina("Interação Humano Computador","Fatores Humanos em "
-                    + "Sistemas Computacionais, Fundamentos Teóricos em Interação "
-                    + "Humano-Computador, Usabilidade, Comunicabilidade, Acessibilidade,  "
-                    + "Design de Interação, Processo de Design de Interação, Projeto, Construção"
-                    + " e avaliação de interfaces.",3));
-            disciplinas.add(new Disciplina("Programação Orientada a Objetos","Conceitos e evolução da"
-                    + " tecnologia de orientação a objetos. Limitações e diferenças entre o paradigma"
-                    + " da programação estruturada em relação à orientação a objetos. Conceito de "
-                    + "objeto, classe, métodos, atributos, herança, polimorfismo, agregação, associação, "
-                    + "dependência, encapsulamento, mensagem e suas respectivas notações na linguagem"
-                    + " padrão de representação da orientação a objetos. Implementação de algoritmos"
-                    + " orientado a objetos utilizando linguagens de programação. Aplicação e uso das"
-                    + " estruturas fundamentais da orientação a objetos",3));
-            disciplinas.add(new Disciplina("Sistema de Informação","Estudos de conceitos básicos de "
-                    + "Sistemas de Informações. Estudo das aplicações dos Sistemas de Informações nas"
-                    + " organizações. Potencial estratégico dos Sistemas de Informações para o negócio."
-                    + " Perspectivas do uso dos Sistemas de Informações no suporte a Processos Gerenciais"
-                    + " nas organizações. A Tecnologia da Informação como infraestrutura para os "
-                    + "sistemas de informações.",3));
-            disciplinas.add(new Disciplina("Sistemas Operacionais I","Introdução a Sistemas Operacionais. "
-                    + "Estrutura dos Sistemas Operacionais. Processos e Threads. Gerencia de Processos. "
-                    + "Sincronização de Processos Concorrentes. Gerenciamento de Memória. Memória Virtual."
-                    + " Sistemas de Arquivos. Gerência de Dispositivos. Tópicos complementares. Estudos de caso.",3));
-            disciplinas.add(new Disciplina("Inglês IV","Consolidação da compreensão e produção oral e escrita "
-                    + "por meio da integração das habilidades lingüístico-comunicativas desenvolvidas na "
-                    + "disciplina Inglês 3. Ênfase na oralidade, atendendo às especificidades acadêmico-profissionais"
-                    + " da área e abordando aspectos sócio-culturais da língua inglesa.",3));
-            disciplinas.add(new Disciplina("Sociedade e Tecnologia","Comunicação e Informação – conceitos e "
-                    + "implicações no mundo contemporâneo; Da Cultura de Massa à Cultura Digital – novas "
-                    + "formas de socialização da informação e  novos desafios na comunicação. Tecnologia e "
-                    + "Sociedade - Problemas humanos e sociais referentes à utilização da tecnologia da "
-                    + "informação e da computação: aspectos humanos da segurança e privacidade das informações "
-                    + "e aspectos econômicos e éticos da utilização dos computadores.",3));
-            disciplinas.add(new Disciplina("Lab. de Banco de Dados","Tecnologias emergentes de mercado que serão "
-                    + "aplicadas em laboratório",3));
-            disciplinas.add(new Disciplina("Estrutura de Dados","Pilhas, filas, alocação dinâmica,"
-                    + " recursividade, listas encadeadas, tabelas de espalhamento e árvores.",3));
+        ArrayList<Disciplina> list = new ArrayList<>();
+        Connection con = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        Exception methodException = null;
+        try{
+            con = DbListener.getConnection();
+            stmt = con.createStatement();
+            rs = stmt.executeQuery("SELECT rowId, * FROM disciplinas");
+            while(rs.next()){
+                list.add(new Disciplina(
+                        rs.getLong("rowId"),
+                        rs.getString("nome"),
+                        rs.getString("ementa"),
+                        rs.getInt("ciclo"),
+                        rs.getDouble("nota")
+                ));
+            }
+        }catch(Exception ex){
+            methodException = ex;
+        }finally{
+            try{rs.close();}catch(Exception ex2){};
+            try{stmt.close();}catch(Exception ex2){};
+            try{con.close();}catch(Exception ex2){};
         }
-        return disciplinas;
+        if(methodException != null);
+        return list;
     }
+
+    public long getRowId() {
+        return rowId;
+    }
+
+    public void setRowId(long rowId) {
+        this.rowId = rowId;
+    }
+    
     public void setNome(String nome){
         this.nome = nome;
     }
@@ -98,5 +89,13 @@ public class Disciplina {
     }
     public double getNota(){
         return nota;
+    }
+    public static String getCreateStatement(){
+        return "CREATE TABLE IF NOT EXISTS disciplinas("
+                + "nome VARCHAR(50) UNIQUE NOT NULL,"
+                + "ementa VARCHAR(500) NOT NULL,"
+                + "ciclo NUMBER(2) NOT NULL,"
+                + "nota NUMBER(2,2)"
+                + ")";
     }
 }
